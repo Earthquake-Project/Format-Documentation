@@ -97,6 +97,7 @@ Section BITD
 
 Section CLUT
 {
+	// "C[olor] L[ook]U[p] T[able]"
 	// length is ALWAYS divisible by 6
 	/*
 		color palettes,
@@ -107,12 +108,14 @@ Section CLUT
 		The name of an Xtra seems to suggest this is lifted from Photoshop
 	*/
 	Array entries/data(length/6) {
-		byte red
-		byte red2
-		byte green
-		byte green2
-		byte blue
-		byte blue2
+		Struct clutColor {
+			byte red
+			byte red2 // purpose unknown
+			byte green
+			byte green2 // purpose unknown
+			byte blue
+			byte blue2 // purpose unknown
+		}
 	}
 }
 

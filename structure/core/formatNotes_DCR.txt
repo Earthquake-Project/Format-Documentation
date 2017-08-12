@@ -30,6 +30,7 @@ Fcdr
 
 ABMP
 {
+	// "A[fter]B[urner]M[a]P"
 	/*
 	Similar to mmap, but using varints
 	
