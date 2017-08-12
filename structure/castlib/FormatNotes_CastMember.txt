@@ -153,6 +153,21 @@ Section snd
 	*/
 }
 
+Section sndH
+{
+	// "s[ou]ndH[eader]"
+}
+
+Section sndS
+{
+	// "s[ou]ndS[ound]"
+}
+
+Section cupt
+{
+	// "cu[e]p[oin]t"
+}
+
 Section ediM
 {
 	data
@@ -161,6 +176,12 @@ Section ediM
 		further analysis shows this contains other data/file types as well...further research required
 	*/
 	//known formats : JPEG Image file, SWA Audio file
+}
+
+Section OLED
+{
+	// "OLE D[ata]"
+	// OLE objects
 }
 
 Section XMED
