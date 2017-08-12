@@ -1,0 +1,240 @@
+﻿SHOCKWAVE FORMAT (general internal workings):
+
+Section RIFX
+{
+	Uint32 chunklength
+	FourCC formtype 
+	(
+		"MV93" for DXR and DIR 
+		"FGDM" for DCR
+		"APPL" for Projector RIFX container (see Projector Notes)
+	)
+	data //entire file, (minus chunkID & chunklength), chunklength bytes long
+}
+
+sub-chunks:
+
+Section imap
+{
+	8 bytes unknown
+	4 bytes mapOffset 
+	/* 
+		points to the currently valid mmap chunk
+		as it turns-out, re-saving a .dir just appends data, including
+		a new mmap chunk (does not happen with "save and compact")
+		
+	*/
+}
+
+Section mmap
+{
+	8 bytes unknown
+	4 bytes chunkCountMax? (maximum amount of chunks in this mmap before Director creates a second one and adds it to the imap?)
+	4 bytes chunkCountUsed
+	12 bytes unknown (Schockabsorber calls two of these junk pointer and free pointer for unknown reason)
+	/*
+		following those bytes is a list of chunks
+		this is the mapping table
+	*/
+	Struct entry
+	{
+		fourcc chunkID
+		uint32 length // not sure why include this, since these entries are nothing but pointers to the chunk
+		uint32 offset
+		uint16 attributes // seems to be 0x01 if chunk is "protected," as in unreadable by Director, not sure what other values do. Seems to commonly be 0x04 or 0x0C for junk and free chunks respectively, so may be a mask, with 0x04 meaning do not validate, and 0x08 meaning ignore in KEY* section ids
+		uint16 unknown // always zero
+		uint32 memsize? // the number of bytes of additional memory beyond the chunk's length that will need to be allocated to parse the rest of the chunk, i.e. for the imap/mmap entries this value will be the number of bytes needed to be allocated in memory to store everything within the mmap table?
+	}
+
+}
+
+Section KEY*
+{
+	data
+	{
+		Uint16 unknown (only 0x0C observed, possibly the length of each entry or the chunk header?)
+		Uint16 unknown (only 0x0C observed, possibly the length of each entry or the chunk header?)
+		Uint32 sectionCount
+		Uint32 castCount (just a guess, need to verify)
+		entry {
+			/*
+				dealing with spybotics suggests there's something more that goes on with
+				the ID/index lookup. It could be a version-specific quirk? Using the exclusive
+				IDs (ignoring free) is causing problems... and recent research with CAS* indicates certain values
+				point to freespace (entries of solid 0x00, e.g. NULL) in the mapping table. Also noteworthy
+				is the JavaScript parser at this time is unable to successfully parse the KEY* section in
+				spybotics, and a majority of the CASt sections are somehow being skipped...
+				This needs to be solved pronto, the castlib cannot be reconstructed without this data!
+			*/
+			Uint32 sectionIdex (the index of the section in the mmap excluding "free" sections, they are to be ignored)
+			Uint32 castIndex (the index of the related CASt section in the mmap excluding "free" sections, they are to be ignored)
+			fourcc chunkID
+		}
+		
+	}
+}
+
+Section [ghost] junk
+{
+	// these are only seen in the mmap - when going to the offset specified, a different chunk name is found which this one replaces
+	// effectively, "junk" replaces chunks that are currently empty, but may be needed later, such as, for example, an empty timeline in Director files
+	// in the mmap, the fact the name is "junk" signifies that although they exist in the raw file, no memory is to be allocated for the chunk until it is needed
+}
+
+Section [ghost] free
+{
+	// these do not seem to actually exist, but are indexed in mmap for some reason
+	// they typically have no offset (it's just zero)
+	// they may serve the purpose of replacing deleted or obsolete chunks in the mmap (rather than empty chunks that simply don't need to be allocated yet, unlike junk, like the difference between empty/isset in PHP)
+	// or they may have something else to do with memory allocation
+{
+
+Section Fmap {
+	// font mapping table (one per cast)
+	// exact purpose not yet known
+	Struct header {
+		Uint32 [big] dataLength
+		Uint32 [big] dataLength2
+		Uint32 unknown1
+		Uint32 unknown2
+		Uint32 unknown3
+		Uint32 [big] count
+		Uint32 [big] count2
+		Uint32 unknown4
+	}
+	Struct ofstNull {
+		Uint32 offset // 0
+		Uint32 unknown // 0
+	}
+	Uint32Array(count * 2) offsets {
+		struct offset {
+			Uint32 [big] offset
+			Uint16 [big] cons1 // 2
+			Byte cons2 // 0x80
+			Byte ID? // 1+
+		}
+	}
+	Struct data {
+		Struct dataNull {
+			Uint32 unknown1 // 0
+			Uint32 unknown2 // 0
+			Uint32 dataLength2B // same as dataLength2
+			Uint32 dataLength2C // same as dataLength2
+			Uint16 unknown3 // 0
+		}
+		// @ offset offsets[0].offset :
+		Array(count) fontNames {
+			Byte-Aligned(4) Length(Uint32 [big])-prefixed ASCII String fontName
+			/* 
+				example :
+				{
+					00 00 00 05 // length
+					"Arial" // string
+					00 00 00 // padding
+				}
+				// 4(length) + 5(string) + 3(padding) = 12
+			*/
+		}
+	}
+}
+
+Section XTRl
+{
+	Uint32 length
+	4 bytes unknown
+	Uint32 [big-end] xtraCount
+	Array entries(xtraCount) {
+		Uint32 [big end] length
+		Struct(length) data
+		{
+			//needs more research
+			ByteArray(0x22) unknown {
+				Uint16 GUIDLen // constant 16
+				GUID xtraGUID // In some cases, it will be {00000000-0000-00-00-00-00-00-00-00-00}
+			}
+			Uint32 [big-end] length2
+			Block(length2) data
+			{
+				2 bytes unknown
+				Uint8 nameLength
+				String(nameLength) name
+				3 bytes unknown
+				Uint8 pathLength
+				String(pathLength) path/url
+				byte unknown (0x00)
+			}
+		}
+	}
+	[one extra padding byte if odd length]
+	/*
+		Xtra library/linkage...
+		Lists required Xtras to play the movie
+	*/
+}
+
+Section Sord {
+	// exact purpose yet unknown...
+	/* 
+		affects UI sort order, but it's clearly far more important,
+		as movies won't compile to DCR or DXR without it.
+		re-generated when DIR is saved
+	*/
+	Struct header {
+		Uint32 [big] const1 // 0
+		Uint32 [big] const2 // 0
+		Uint32 [big] count
+		Uint32 [big] count2
+		Uint16 [big] headerSize // constant 0x14
+		Uint16 [big] entrySize // 02, 04
+	}
+	Array data(entrySize) {
+		Struct dataEntry {
+			/*
+				entrySize of 02 seems to come before director 4.
+				This is also before the concept of multiple casts per movie was a thing.
+				That seems to suggest that the id's correspond to cast and cast member numbers
+			*/
+			@entrySize 02 {
+				Uint16 [big] id
+			}
+			@entrySize 04 {
+				Uint16 [big] id1
+				Uint16 [big] id2
+			}
+		}
+	}
+}
+
+shockwave format types:
+DXR : 'protected'
+DCR : compressed (via zlib)
+DIR : uncompressed + unprotected
+CXT : 'protected'
+CCT : compressed (via zlib)
+CST : uncompressed + unprotected
+W3D : 3D model/scene file (related to the open U3D format, but exact similarities/differences not yet discovered)
+SWA : Audio file (variation of MP3, but contains some extra data for use by Shockwave)
+
+purposes:
+D*R : movie, runs stand-alone, may load C*T's as dependencies
+C*T : 
+{
+	external "cast" , basically an external library of stuff. 
+	D*R's are made of multiple internal casts, and will attempt to
+	load external casts if any have been linked.
+	Some movies can play without the external casts
+	External casts are of a similar structure a movie,
+	except they only contain one cast, and cannot run as a stand-alone application.
+	There are subtle differences in their internal layout, more research is required to
+	determine what all of these are.
+}
+
+extra notes:
+Spybotics, does not actually require its external casts to run.
+However, this might impact the music*
+
+*All remaining copies/archives of Spybotics: The Nightfall Incident
+do not have the sound_level_<1-5>.cct, and the snd_netload_<1-5>.cct files.
+It's quite possible official releases never actually did use them.
+the sound_level_<x> files are all empty, and the snd_netload_<x> files
+contain alternative soundtracks. These tracks probably are for databattles.
