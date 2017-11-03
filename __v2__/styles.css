@@ -54,3 +54,23 @@ a:active {
 #docu {
 	text-align : left;
 }
+#struct {
+	text-align : left;
+}
+.key1 {
+	color : #4800FF;
+	font-weight: bold;
+}
+.key2 {
+	color : #00FF00;
+	font-weight: bold;
+}
+.key3 {
+	color : #FF6A00;
+}
+.key4 {
+	color : #00FFFF;
+}
+.key5 {
+	color : #FF0000;
+}

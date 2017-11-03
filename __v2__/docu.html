@@ -2,18 +2,26 @@
 	<head>
 		<meta charset="UTF-8"/>
 		<title>EARTHQUAKE DOCU V2 - TEST</title>
+		<link rel="stylesheet" type="text/css" href="bootstrap.css"/>
 		<link rel="stylesheet" type="text/css" href="styles.css"/>
 	</head>
 	<body>
 		<table id="root" border="1">
 			<tr id="UI_TOP">
-				<td id="nav">nav</td>
+				<td id="nav">nav
+					
+				</td>
 				<td id="docu">
 					Struct test {<br/>
 					&nbsp;&nbsp;&nbsp;&nbsp;<a href="" onmouseover="say('typedef U32 : 4-byte unsigned integer')">U32</a> bigNumber
 					<br/>
 					&nbsp;&nbsp;&nbsp;&nbsp;<a href="" onmouseover="say('typedef U16 : 2-byte unsigned integer')">U16</a> smallNumber<br/>
 					}
+					<dl id="struct">
+						<dt><span class="key1">Struct</span> <span class="key5">Something</span> <span class="key4">{</span></dt>
+						<dd><span class="key2">int</span> <span class="key3">number</span></dd>
+						<span class="key4">}</span>
+					</dl>
 				</td>
 				<td id="hex">
 					<h2>Example Hex Dump</h2>
@@ -25,6 +33,8 @@
 			</tr>
 		</table>
 		<script type="text/javascript" src="code.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script type="text/javascript" src="bootstrap.min.js"></script>
 		<!--
 			width of hex area should be (3 * width) [in entries] + 1
 			every 16th entry needs a space appended to the front
