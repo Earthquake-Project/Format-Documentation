@@ -7,7 +7,7 @@
 		<!-- name for this type of data -->
 		<!-- size in bytes, 0 for variable -->
 		<!-- byteorder is 0 to 2 (big/little/arbitrary) -->
-		<def name="U64" size="8" byteorder="2">
+		<def name="U64" size="8" byteorder="2"> <!-- definitions for unsigned ints -->
 			<!-- aliases, e.g. other names for it -->
 			<aliases>
 				<alias>Uint64</alias>
@@ -17,7 +17,7 @@
 			</aliases>
 			<!-- info, where you put a description of the data type -->
 			<info>
-				An unsigned integer with a value range of 0 to ...lazy
+				An unsigned integer with a value range of 0 to 18,446,744,073,709,551,615
 			</info>
 		</def>
 		<def name="U32" size="4" byteorder="2">
@@ -48,6 +48,86 @@
 			</aliases>
 			<info>
 				An unsigned integer with a value range of 0 to 65,535
+			</info>
+		</def>
+		<def name="U8" size="1" byteorder="2">
+			<aliases>
+				<alias>Uint8</alias>
+				<alias>UByte</alias>
+				<alias>Unsigned Byte</alias>
+				<alias>Byte</alias>
+			</aliases>
+			<info>
+				An unsigned integer with a value range of 0 to 255
+			</info>
+		</def>
+		<!-- definitions for signed ints -->
+		<def name="I64" size="8" byteorder="2">
+			<aliases>
+				<alias>Int64</alias>
+				<alias>ILong</alias>
+				<alias>Signed Long</alias>
+				<alias>QWORD</alias>
+			</aliases>
+			<info>
+				A signed integer with a value range of -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+			</info>
+		</def>
+		<def name="I32" size="4" byteorder="2">
+			<aliases>
+				<alias>Int32</alias>
+				<alias>Int</alias>
+				<alias>Signed Int</alias>
+				<alias>DWORD</alias>
+			</aliases>
+			<info>
+				A signed integer with a value range of -2,147,483,648 to 2,147,483,647
+			</info>
+		</def>
+		<def name="I24" size="3" byteorder="2">
+			<aliases>
+				<alias>Int24</alias>
+			</aliases>
+			<info>
+				A signed integer with a value range of 
+			</info>
+		</def>
+		<def name="I16" size="2" byteorder="2">
+			<aliases>
+				<alias>Int16</alias>
+				<alias>Short</alias>
+				<alias>Signed Short</alias>
+				<alias>WORD</alias>
+			</aliases>
+			<info>
+				A signed integer with a value range of -32,768 to 32,767
+			</info>
+		</def>
+		<def name="I8" size="1" byteorder="2">
+			<aliases>
+				<alias>Int8</alias>
+				<alias>Signed Byte</alias>
+			</aliases>
+			<info>
+				A signed integer with a value range of -128 to 127
+			</info>
+		</def>
+		<!-- definitions for floating point numbers -->
+		<def name="Float" size="4" byteorder="2">
+			<aliases>
+				<alias>Single-Precision Float</alias>
+			</aliases>
+			<info>
+				A floating-point number with a value range of 1.2e-38 to 3.4e38
+			</info>
+		</def>
+		<def name="Double" size="8" byteorder="2">
+			<aliases>
+				<alias>Double-Precision Float</alias>
+				<alias>Extended-Precision Float</alias>
+			</aliases>
+			<info>
+				A floating-point number with a value range of 5.0e-324 to 1.8e308
 			</info>
 		</def>
 	</typedefs>
