@@ -4,7 +4,7 @@ Some example Shockwave Projectors can be seen in the tools folder. These were fi
 
 This briefly documents the behaviours and inner workings of Shockwave Projectors.
 
-The resources contained within these EXE files are in the EOF Extra Data, the address of which can be found in a hex editor by adding the RawOffset and RawSize of the last section in the PE header. If the EOF Extra Data is removed, the Projector looks for a movie to be spcified in an external INI file with the same filename as the EXE file using the Movie01 parameter. Amongst the files in the EOF Extra Data are:
+The resources contained within these EXE files are in the EOF Extra Data, the address of which can be found in a hex editor by adding the RawOffset and RawSize of the last section in the PE header. If the EOF Extra Data is removed, the Projector looks for a movie to be specified in an external INI file with the same filename as the EXE file using the Movie01 parameter. Amongst the files in the EOF Extra Data are:
 
 -A BMP image with a splash screen logo to show before playing a movie which is the Macromedia logo by default, but these are rarely shown as most D*Rs load quickly enough that it will not appear.
 
