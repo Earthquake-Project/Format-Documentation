@@ -1,3 +1,36 @@
-Notes specific to W3D file format (exported shockwave 3D scene/model files):
+Notes specific to W3D file format (shockwave 3D scene/model files):
+this research is partly guided by the U3D specs due to the formats being related
+There are some differences to be figured-out
 
-research required...
+Research has just begun, so it will be a while before too much useful information is generated
+
+ints are all little-endian
+strings are preceded by short length and are not null terminated
+
+struct chunk {
+	U32 ID
+	U32 length
+	Data(length)
+	padding // keeps chunks 4-byte aligned
+}
+
+chunk 0x584649 { // read as string : "IFX" 00
+	// header
+	I32 unk1
+	U32 filesize // of entire file
+}
+
+chunk 0xffffff21 {
+	// texture
+	string name
+	U8 compressiontype // not yet comfirmed
+	@compressiontype : 1 {
+		JPEG image
+	}
+	@compressiontype : 3 {
+		// further analysis required
+		unknown bytes
+		ZLIB stream
+	}
+}
+

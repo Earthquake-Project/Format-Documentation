@@ -1,31 +1,38 @@
 The following specifications are specific to the DCR format:
 
+DCR chunk {
+	FourCC ID
+	Varint length
+	<length> bytes data // DCR chunks do not appear to be byte-aligned
+	/*
+		WARNING!
+		The root chunk in a DCR is still a RIFX/XFIR chunk
+		It follows the expected pattern of
+		FourCC ID, length, FourCC FORMID, data
+	*/	
+}
+
 Fver
 {
-	1 byte [Uint8? Varint?]! chunkLength!!
 	5 bytes unknown (binary representation of version, maybe?)
 	String fileVersion (written as byte length followed by string)
-	/*
-	! type cannot be exactly verified, no observed Fver has yet reason to
-	be a very large size. version numbers are usually small in size, even
-	when written as plaintext. However, DCR does use varints for numbers, a lot...
-	See ABMP for explanation of varints
-	
-	!! This only seems to make sense so far, but no counter-example has yet been observed.
-	It logically makes sense, because whatever is reading the file NEEDS to know the size
-	of a given chunk. Zlib is no compression, and would likely fail catostrophically if
-	it didn't know the size of what it is supposed to be decompressing. A hacker or hacker tool
-	could simply sniff for headers (in this case, RIFF FourCC's) , however, this is potentially
-	error-prone. No sane programmer uses guesswork on a file format, especially a complex one.
-	The length of a given block/section generally is declared explicitly, somewhere. Sometimes,
-	it is declared in multiple places. 
-	*/
 }
 
 Fcdr
 {
-	// contains ziplib compressed data
-	// is just strings for if there was an error like "Missing Xtra" etc.
+	/*
+		contains ziplib compressed data
+		is just strings for if there was an error like "Missing Xtra" etc.
+
+		possibly is more than just strings
+		first 48 bytes *might* be GUIDS
+		then it's three null-terminated strings
+		NOT YET CONFIRMED
+
+		Exact purpose/reasoning for this chunk is still questionable
+		It is completely safe to ignore reading this chunk
+	*/
+	
 }
 
 ABMP
@@ -64,20 +71,39 @@ ABMP
 	varint repr_mode (not sure what this does, just the name according to Schockabsorber)
 	fourcc chunkID
 	*/
+	//TODO : cover missing information
 }
 
 FGEI
 {
 	/*
-	Compressed zlib data.
-	Contains all the sections referenced in ABMP.
-	Note that this doesn't use RIFX at all, it depends
-	on the ABMP section to lay it out, so
-	there's no redundant information like how mmap
-	repeats the name and length of each section.
+		Compressed zlib data.
+		Contains all the sections referenced in ABMP.
+		Note that this doesn't use RIFX at all, it depends
+		on the ABMP section to lay it out, so
+		there's no redundant information like how mmap
+		repeats the name and length of each section.
 	*/
+	// technically, the 'chunk' is 0 bytes in length and just acts as a marker
 }
 
+ILS {
+	// "I[nitial] L[oad] S[egment]"
+	/*
+		The first file in FGEI (as thus far observed), 
+		it contains all the chunks that must be loaded first,
+		Reading it absolutely depends on the ABMP
+	*/
+	Array [
+		{
+			varint ID // same as the ID property in ABMP entries
+			Byte[] chunkdata // ABMP has the length, as well
+		}
+	]	
+}
+
+// FAKE NEWS, DCR DOES NOT NEED/HAVE A MMAP, IT HAS ABMP FOR THIS...
+// where'd this come from, anyways???
 mmap
 {
   /* 
