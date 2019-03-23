@@ -140,36 +140,44 @@ Section Fmap {
 
 Section XTRl
 {
-	Uint32 length
+	/*
+		Xtra List
+		Lists required Xtras to play the movie
+		also maps to lingo property : movie.xtralist
+	*/
 	4 bytes unknown
 	Uint32 [big-end] xtraCount
-	Array entries(xtraCount) {
-		Uint32 [big end] length
-		Struct(length) data
-		{
-			//needs more research
-			ByteArray(0x22) unknown {
-				Uint16 GUIDLen // constant 16
-				GUID xtraGUID // In some cases, it will be {00000000-0000-00-00-00-00-00-00-00-00}
-			}
-			Uint32 [big-end] length2
-			Block(length2) data
-			{
-				2 bytes unknown
-				Uint8 nameLength
-				String(nameLength) name
-				3 bytes unknown
-				Uint8 pathLength
-				String(pathLength) path/url
-				byte unknown (0x00)
-			}
+	Array entries(xtracount) [
+		U32 length
+		VLIST16 {
+			numbers [ // expected to contain 10 entries
+				0-1 : unknown // probably flags for download settings
+				2-9 : GUID // sometimes may be {00000000-0000-0000-00-00-00-00-00-00-00-00}
+			]
+			entries [
+				{
+					U16 infotypeID
+					byte infolength
+					String(infolength) info
+
+					/*
+						info type: * marks disallowed/hidden in lingo
+						0602 = name*
+						0605 = filename
+						2202 = version*
+						0100 = packageurl
+						0000 = packagefiles.name*
+						4105 = packagefiles.filename
+						4205 = packagefiles.version
+						
+						8540 = unidentified, it's another name though
+						
+					*/
+				}
+			]
 		}
-	}
-	[one extra padding byte if odd length]
-	/*
-		Xtra library/linkage...
-		Lists required Xtras to play the movie
-	*/
+		
+	]
 }
 
 Section Sord {

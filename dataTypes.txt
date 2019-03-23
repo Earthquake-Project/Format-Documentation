@@ -189,3 +189,45 @@ EXCEPT
 	chunkLength
 	formType
 ), which are little-endian
+
+==VLIST==
+Vlist { // or Vector List
+	// Thanks to Tommysshadow for figuring this out
+	U32 length // inclusive
+	/*
+		There is no known way to magically identify a VList's type
+		It must be manually analyzed in a hex editor or similar
+		In any case, the only difference between a VLIST16 and a VLIST32 is
+		the type of numbers stored in its numbers array
+		
+		The numbers Array, also, is not technically considered part of the VList
+	*/
+	@VLIST16 : {
+		int numlength = ((length - 4) / 2)
+		U16Array(numlength) numbers[]
+	}
+	@VLIST32 : {
+		int numlength = ((length - 4) / 4)
+		U32Array(numlength) numbers[]
+	}
+	u16 entrycount
+	U32Array(entrycount) endpointers[]
+	U32 listendpointer // or can just read the array with one extra value
+	Array(entrycount) vlist [ // could call it entries, whatever...
+		/*
+			The length of a given entry <x> is calculated with
+			endpointers[x + 1] - endpointers[x]
+			This is also why including the listendpointer in the endpointers array
+			is useful, because it avoids declaring an extra variable and needing an
+			if statement to detect the one time that variable needs to be used
+
+			It would probably be more accurate to call endpointers 'pointers',
+			because the pointer corresponding to any given entry is in fact its
+			relative offset from the base of the vlist. It is the next entry which
+			marks the end of the current entry's data
+
+			the base offset of the vlist is immediatly after listendpointer,
+			in case that wasn't obvious
+		*/
+	]
+}
